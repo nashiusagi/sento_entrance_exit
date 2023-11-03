@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "tracking"
+version = "0.1.0"
+description = ""
+authors = ["nashiusagi"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+numpy = "^1.22.0"
+opencv-python = "^4.5.5"
+Sphinx = {version = "^4.3.2", optional = true, extras = ["docs"]}
+pdf2image = "^1.16.0"
+matplotlib = "^3.5.1"
+redis = "^5.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+tox = "^3.24.5"
+pre-commit = "^2.16.0"
+jupyterlab = "^3.2.6"
+pytest-cov = "^3.0.0"
+freezegun = "^1.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
