@@ -42,10 +42,11 @@ def warp_flow(img, flow):
     return res
 
 def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
-    cam = cv2.VideoCapture("./movie/exit.mp4")
+    cam = cv2.VideoCapture("./movie/pair3.mp4")
 
     width = cam.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    fps = cam.get(cv2.CAP_PROP_FPS)
 
     ret, prev = cam.read()
     prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
@@ -67,8 +68,14 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
     start_time = None
     end_time = None
 
+    i = 0
+
     while True:
         ret, img = cam.read()
+
+        if ret == False:
+            break
+
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         if flow is not None and use_temporal_propagation:
@@ -78,7 +85,11 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
             flow = inst.calc(prevgray, gray, None)
         prevgray = gray
 
-        cv2.imshow('flow', draw_flow(gray, flow))
+
+        result = draw_flow(gray, flow)
+        cv2.imshow('flow', result)
+        #cv2.imwrite(f'./result/{str(i).zfill(3)}.png',result)
+        i+=1
 
         if show_hsv:
             cv2.imshow('flow HSV', draw_hsv(flow))
@@ -86,7 +97,7 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
             cur_glitch = warp_flow(cur_glitch, flow)
             cv2.imshow('glitch', cur_glitch)
 
-        ch = 0xFF & cv2.waitKey(5)
+        ch = 0xFF & cv2.waitKey(10)
 
         if ch == 27:
             break
@@ -111,12 +122,12 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
 
         if(wait_status == 0):
             if(flow_sum < minus_thre):
-                redis_queue.rpush('queue', '-1')
                 print('-1')
+                redis_queue.rpush('queue', '-1')
 
             elif(flow_sum > plus_thre):
-                redis_queue.rpush('queue', '1')
                 print('1')
+                redis_queue.rpush('queue', '1')
 
             start_time = time.time()
             wait_status = 1
@@ -127,12 +138,14 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
                 start_time = None
                 wait_status = 0
 
+    cam.release()
     cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
     MINUS_THRESHOLD = -2
-    PLUS_THRESHOLD = 5
-    thre_rate = 0.3 # exit, enter
+    PLUS_THRESHOLD = 3
+    #thre_rate = 0.005 # enter
+    thre_rate = 0.01 # exit
 
     main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate)
