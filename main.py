@@ -42,7 +42,7 @@ def warp_flow(img, flow):
     return res
 
 def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture("./movie/exit.mp4")
 
     width = cam.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -133,6 +133,6 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
 if __name__ == "__main__":
     MINUS_THRESHOLD = -2
     PLUS_THRESHOLD = 5
-    thre_rate = 0.8
+    thre_rate = 0.3 # exit, enter
 
     main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate)
