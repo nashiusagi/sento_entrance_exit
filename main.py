@@ -2,6 +2,7 @@ import sys
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 import time
+import random
 
 import numpy as np
 import redis
@@ -42,7 +43,7 @@ def warp_flow(img, flow):
     return res
 
 def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
-    cam = cv2.VideoCapture("./movie/pair3.mp4")
+    cam = cv2.VideoCapture("./movie/sample.mp4")
 
     width = cam.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -88,7 +89,7 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
 
         result = draw_flow(gray, flow)
         cv2.imshow('flow', result)
-        #cv2.imwrite(f'./result/{str(i).zfill(3)}.png',result)
+        cv2.imwrite(f'./result/{str(i).zfill(4)}.png',result)
         i+=1
 
         if show_hsv:
@@ -119,6 +120,8 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
 
         # 出入りを確認し、検知をした場合はRedisにステータスを入れる
         flow_sum = np.sum(flow[:, :, 0])
+        #plus_count = np.where(flow[:,:,0]>0).count()
+        #minus_count = np.where(flow[:,:,0]<0).count()
 
         if(wait_status == 0):
             if(flow_sum < minus_thre):
@@ -143,8 +146,11 @@ def main(MINUS_THRESHOLD, PLUS_THRESHOLD, thre_rate):
 
 
 if __name__ == "__main__":
-    MINUS_THRESHOLD = -2
-    PLUS_THRESHOLD = 3
+    SEED=42
+    random.seed(SEED)
+    np.random.seed(SEED)
+    MINUS_THRESHOLD = -1.5
+    PLUS_THRESHOLD = 1.5
     #thre_rate = 0.005 # enter
     thre_rate = 0.01 # exit
 
